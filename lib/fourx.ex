@@ -1,19 +1,14 @@
 defmodule Fourx do
-  @moduledoc """
-  Documentation for `Fourx`.
-  """
+  @type board_piece :: nil | 0 | 1
 
-  @doc """
-  Hello world.
+  def board do
+    map = create_board(7, 6)
+    map
+  end
 
-  ## Examples
-
-      iex> Fourx.hello()
-      :world
-
-  """
-  def hello do
-    IO.puts "hello"
-    :world
+  def create_board(nx, ny) do
+    # Create nx no. of cols
+    col = Enum.into(0..ny-1, %{}, &{&1, nil})
+    Enum.into(0..nx-1, %{}, &{&1, col})
   end
 end
