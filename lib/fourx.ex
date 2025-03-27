@@ -19,27 +19,27 @@ defmodule Fourx do
       :diagonal_left -> nx - 1
     end
 
-    find_adjacent(Map.keys(map), diff, 0, 1)
+    find_adjacent(Map.keys(map), nx, diff, 0, 1)
   end
       
-  def find_adjacent(values, _diff, start_index, consecutive) when
+  def find_adjacent(values, _nx, _diff, start_index, consecutive) when
     length(values) <= start_index + 1
   do
-    # {Enum.at(values, start_index), consecutive}
-    {start_index, consecutive}
+    {Enum.at(values, start_index), consecutive}
   end
 
-  def find_adjacent(values, diff, start_index, consecutive) do
+  def find_adjacent(values, nx, diff, start_index, consecutive) do
     start = Enum.at(values, start_index)
     adj = Enum.find(values, fn x ->
+      row_diff = if diff === 1 do 0 else consecutive end
       next = start + consecutive * diff
-      next === x and get_row(next, diff) - get_row(start, diff) === consecutive
+      next === x and get_row(next, nx) - get_row(start, nx) === row_diff
     end)
 
     cond do
       consecutive === 4 -> {start, consecutive}
-      adj !== nil -> find_adjacent(values, diff, start_index, consecutive + 1)
-      true -> find_adjacent(values, diff, start_index + 1, 1)
+      adj !== nil -> find_adjacent(values, nx, diff, start_index, consecutive + 1)
+      true -> find_adjacent(values, nx, diff, start_index + 1, 1)
     end
   end
 
