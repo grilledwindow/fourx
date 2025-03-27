@@ -23,9 +23,9 @@ defmodule Fourx do
   end
       
   def find_adjacent(values, _diff, start_index, consecutive) when
-    length(values) <= 1
-    or length(values) <= start_index + consecutive
+    length(values) <= start_index + 1
   do
+    # {Enum.at(values, start_index), consecutive}
     {start_index, consecutive}
   end
 
