@@ -21,13 +21,21 @@ defmodule Fourx do
 
   def find_adjacent(values, nx, start_index, consecutive) do
     start = Enum.at(values, start_index)
-    adj = Enum.find(values, &(&1 === (start + consecutive * nx)))
+    adj = Enum.find(values, fn x ->
+      next = start + consecutive * nx
+      IO.puts get_row(start, nx)
+      next === x and get_row(next, nx) - get_row(start, nx) === consecutive
+    end)
 
     cond do
       consecutive === 4 -> {start, consecutive}
       adj !== nil -> find_adjacent(values, nx, start_index, consecutive + 1)
       true -> find_adjacent(values, nx, start_index + 1, 1)
     end
+  end
+
+  defp get_row(x, nx) do
+    if x < 0 do 0 else 1 + get_row(x - nx, nx) end
   end
 
   def create_board(nx, ny) do
