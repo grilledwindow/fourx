@@ -56,9 +56,9 @@ defmodule Fourx do
   end
 
   def print_board(board, nx, ny) do
-    Enum.reduce(ny..0, "", fn y, acc_row ->
+    Enum.reduce(ny-1..0, "", fn y, acc_row ->
       acc_row
-        <> Enum.reduce(0..nx, "", fn x, acc_col ->
+        <> Enum.reduce(0..nx-1, "", fn x, acc_col ->
           piece = board[x + y * nx]
           acc_col <> case piece do nil -> " -"; _ -> " #{piece}" end
         end)
