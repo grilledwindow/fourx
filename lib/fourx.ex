@@ -6,9 +6,11 @@ defmodule Fourx do
     {nx, ny} = {7, 6}
     map = create_board(nx, ny)
       |> add_winning_positions
-      |> Map.filter(fn {_k, v} -> v === player end)
+    
+    Map.filter(map, fn {_k, v} -> v === player end)
+      |> find_adjacent(nx, :horizontal)
 
-    find_adjacent(map, nx, :horizontal)
+    print_board(map, nx, ny)
   end
 
   def find_adjacent(map, nx, direction) do
@@ -51,6 +53,18 @@ defmodule Fourx do
   def create_board(nx, ny) do
     len = nx * ny - 1
     Map.new(0..len, &{&1, nil})
+  end
+
+  def print_board(board, nx, ny) do
+    Enum.reduce(ny..0, "", fn y, acc_row ->
+      acc_row
+        <> Enum.reduce(0..nx, "", fn x, acc_col ->
+          piece = board[x + y * nx]
+          acc_col <> case piece do nil -> " -"; _ -> " #{piece}" end
+        end)
+        <> "\n"
+    end)
+    |> IO.puts
   end
 
   def add_winning_positions(map) do
