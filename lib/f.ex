@@ -1,15 +1,37 @@
 defmodule F do
   @type board_piece :: nil | 0 | 1
 
-  def board do
-    player = 1
+  def play() do
     {ny, nx} = {6, 7}
-    board = create_board(ny, nx)
-      |> add_winning_positions
-    
-    find_adjacent(board, player, {ny, nx}, :vertical)
+    create_board(ny, nx)
+    |> print_board(ny, nx)
+    |> play(1, {ny, nx})
+  end
 
-    print_board(board, ny, nx)
+  def play(board, player, {ny, nx}) do
+    {_, _, consecutive} = find_adjacent(board, player, {ny, nx}, :all)
+    if consecutive === 4 do
+      IO.puts("Player #{player + 1} won!")
+    else
+      with {x, _} <- IO.gets("Slot in column (1-7): ")
+        |> String.trim("\n")
+        |> Integer.parse
+      do
+        board 
+        |> update_board(1 - player, ny, x - 1)
+        |> print_board(ny, nx)
+        |> play(1 - player, {ny, nx})
+      end
+    end
+  end
+
+  def find_adjacent(board, player, {ny, nx}, :all) do
+    with {_, _, consecutive} when consecutive < 4 <- find_adjacent(board, player, {ny, nx}, :vertical),
+      {_, _, consecutive} when consecutive < 4 <- find_adjacent(board, player, {ny, nx}, :horizontal),
+      {_, _, consecutive} when consecutive < 4 <- find_adjacent(board, player, {ny, nx}, :diagonal_left)
+    do
+      find_adjacent(board, player, {ny, nx}, :diagonal_right)
+    end
   end
 
   def find_adjacent(board, player, {ny, nx}, direction) do
@@ -44,11 +66,25 @@ defmodule F do
       acc_row
         <> Enum.reduce(0..nx-1, "", fn x, acc_col ->
           piece = board[y][x]
-          acc_col <> case piece do nil -> " -"; _ -> " #{piece}" end
+          acc_col <> case piece do nil -> " -"; _ -> " #{piece + 1}" end
         end)
         <> "\n"
     end)
+    <> Enum.reduce(0..ny, "\n", fn x, col_label -> col_label <> " #{x + 1}" end)
     |> IO.puts
+
+    board
+  end
+
+  # TODO: check if column is full
+  def update_board(board, player, ny, x) do
+    Enum.reduce_while(0..ny-1, board, fn y, acc ->
+      if is_nil(acc[y][x]) do
+        {:halt, put_in(acc, [y, x], player)}
+      else
+        {:cont, acc}
+      end
+    end)
   end
 
   def add_winning_positions(map) do
