@@ -4,12 +4,12 @@ defmodule F do
   def board do
     player = 1
     {ny, nx} = {6, 7}
-    board = create_board(nx, ny)
+    board = create_board(ny, nx)
       |> add_winning_positions
     
     find_adjacent(board, player, {ny, nx}, :vertical)
 
-    print_board(board, nx, ny)
+    print_board(board, ny, nx)
   end
 
   def find_adjacent(board, player, {ny, nx}, direction) do
@@ -34,12 +34,12 @@ defmodule F do
     end
   end
 
-  def create_board(nx, ny) do
+  def create_board(ny, nx) do
     col = Map.new(0..ny-1, &{&1, nil})
     Map.new(0..nx-1, &{&1, col})
   end
 
-  def print_board(board, nx, ny) do
+  def print_board(board, ny, nx) do
     Enum.reduce(ny-1..0, "", fn y, acc_row ->
       acc_row
         <> Enum.reduce(0..nx-1, "", fn x, acc_col ->
