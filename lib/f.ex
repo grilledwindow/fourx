@@ -20,7 +20,7 @@ defmodule F do
       :diagonal_left -> {1, -1}
     end
 
-    find_adjacent({board, player, ny, nx, dy, dx}, {0, 0}, 1)
+    find_adjacent({board, player, ny, nx, dy, dx}, {0, 0}, 0)
   end
       
   # (sy,sx) is used so that the function can restart from the last incomplete pattern
@@ -28,9 +28,9 @@ defmodule F do
     {ty, tx} = {sy + dy * consecutive, sx + dx * consecutive}
     cond do
       (ty >= ny and tx >= nx) or consecutive === 4 -> {sy, sx, consecutive}
-      tx >= nx -> find_adjacent(game, {sy + 1, 0}, 1)
+      tx >= nx -> find_adjacent(game, {sy + 1, 0}, 0)
       board[ty][tx] == player -> find_adjacent(game, {sy, sx}, consecutive + 1)
-      true -> find_adjacent(game, {sy, sx + 1}, 1)
+      true -> find_adjacent(game, {sy, sx + 1}, 0)
     end
   end
 
