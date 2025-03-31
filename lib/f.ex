@@ -49,8 +49,8 @@ defmodule F do
   def find_adjacent(game={board, player, ny, nx, dy, dx}, {sy, sx}, consecutive) do
     {ty, tx} = {sy + dy * consecutive, sx + dx * consecutive}
     cond do
-      (ty >= ny and tx >= nx) or consecutive === 4 -> {sy, sx, consecutive}
-      tx >= nx -> find_adjacent(game, {sy + 1, 0}, 0)
+      (sy == ny - 1 and sx == nx - 1) or consecutive === 4 -> {sy, sx, consecutive}
+      sx == nx -> find_adjacent(game, {sy + 1, 0}, 0)
       board[ty][tx] == player -> find_adjacent(game, {sy, sx}, consecutive + 1)
       true -> find_adjacent(game, {sy, sx + 1}, 0)
     end
@@ -79,10 +79,9 @@ defmodule F do
   # TODO: check if column is full
   def update_board(board, player, ny, x) do
     Enum.reduce_while(0..ny-1, board, fn y, acc ->
-      if is_nil(acc[y][x]) do
-        {:halt, put_in(acc, [y, x], player)}
-      else
-        {:cont, acc}
+      case acc[y][x] do
+        nil -> {:halt, put_in(acc, [y, x], player)}
+        _ -> {:cont, acc}
       end
     end)
   end

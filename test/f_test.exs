@@ -6,6 +6,15 @@ defmodule FTest do
     %{dimensions: {6, 7}, board: F.create_board(6, 7)}
   end
 
+  test "should reach end", state do
+    {ny, nx} = state[:dimensions]
+    Enum.each([:vertical, :horizontal, :diagonal_right, :diagonal_left], fn direction ->
+      IO.puts(direction)
+      {sy, sx, _} = F.find_adjacent(state[:board], 1, state[:dimensions], direction)
+      assert({sy, sx} == {ny - 1, nx - 1})
+    end)
+  end
+
   test "find vertical", state do
     board = %{state[:board] |
       0 => %{ 3 => 1 },
