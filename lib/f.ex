@@ -9,26 +9,25 @@ defmodule F do
   end
 
   def play(board, player, {ny, nx}) do
-    {_, _, consecutive} = find_adjacent(board, player, {ny, nx}, :all)
-    if consecutive === 4 do
-      IO.puts("Player #{player + 1} won!")
-    else
-      with {x, _} <- IO.gets("Slot in column (1-7): ")
-        |> String.trim("\n")
-        |> Integer.parse
-      do
-        board 
-        |> update_board(1 - player, ny, x - 1)
-        |> print_board(ny, nx)
-        |> play(1 - player, {ny, nx})
+    case find_adjacent(board, player, {ny, nx}, :all) do
+      {:some, _sy, _sx} -> IO.puts("Player #{player + 1} won!")
+      {:none} ->
+        with {x, _} <- IO.gets("Slot in column (1-7): ")
+          |> String.trim("\n")
+          |> Integer.parse
+        do
+          board 
+          |> update_board(1 - player, ny, x - 1)
+          |> print_board(ny, nx)
+          |> play(1 - player, {ny, nx})
+        end
       end
-    end
   end
 
   def find_adjacent(board, player, {ny, nx}, :all) do
-    with {_, _, consecutive} when consecutive < 4 <- find_adjacent(board, player, {ny, nx}, :vertical),
-      {_, _, consecutive} when consecutive < 4 <- find_adjacent(board, player, {ny, nx}, :horizontal),
-      {_, _, consecutive} when consecutive < 4 <- find_adjacent(board, player, {ny, nx}, :diagonal_left)
+    with {:none, _, _} <- find_adjacent(board, player, {ny, nx}, :vertical),
+      {:none, _, _} <- find_adjacent(board, player, {ny, nx}, :horizontal),
+      {:none, _, _} <- find_adjacent(board, player, {ny, nx}, :diagonal_left)
     do
       find_adjacent(board, player, {ny, nx}, :diagonal_right)
     end
@@ -49,7 +48,8 @@ defmodule F do
   def find_adjacent(game={board, player, ny, nx, dy, dx}, {sy, sx}, consecutive) do
     {ty, tx} = {sy + dy * consecutive, sx + dx * consecutive}
     cond do
-      (sy == ny - 1 and sx == nx - 1) or consecutive === 4 -> {sy, sx, consecutive}
+      consecutive === 4 -> {:some, sy, sx}
+      (sy == ny - 1 and sx == nx - 1) -> {:none, sy, sx} 
       sx == nx -> find_adjacent(game, {sy + 1, 0}, 0)
       board[ty][tx] == player -> find_adjacent(game, {sy, sx}, consecutive + 1)
       true -> find_adjacent(game, {sy, sx + 1}, 0)
