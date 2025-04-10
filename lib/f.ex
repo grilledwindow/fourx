@@ -5,23 +5,43 @@ defmodule F do
     {ny, nx} = {6, 7}
     create_board(ny, nx)
     |> print_board(ny, nx)
-    |> play(1, {ny, nx})
+    |> play(0, {ny, nx}) # start with Player 1
   end
 
   def play(board, player, {ny, nx}) do
     case find_adjacent(board, player, {ny, nx}, :all) do
       {:some, _sy, _sx} -> IO.puts("Player #{player + 1} won!")
-      {:none} ->
-        with {x, _} <- IO.gets("Slot in column (1-7): ")
-          |> String.trim("\n")
-          |> Integer.parse
-        do
-          board 
-          |> update_board(1 - player, ny, x - 1)
-          |> print_board(ny, nx)
-          |> play(1 - player, {ny, nx})
+      {:none, _, _} ->
+        IO.puts("\n[Player #{player + 1}]")
+        option = try_get_input_until_valid(ny)
+
+        case option do
+          :quit ->
+            IO.puts("Game over")
+          x -> 
+            board 
+            |> update_board(player, ny, x - 1)
+            |> print_board(ny, nx)
+            |> play(1 - player, {ny, nx}) # Switch player
         end
       end
+  end
+
+  defp try_get_input_until_valid(nx) do
+    input = IO.gets("Slot in column (1-#{nx + 1}): ")
+      |> String.trim("\n")
+      |> String.downcase
+
+    case input do
+      x when x in ["exit", "e", "quit", "q"] -> :quit 
+      _ ->
+        case Integer.parse(input) do
+          {x, _} -> x
+          :error ->
+            IO.puts("Invalid input, try again.")
+            try_get_input_until_valid(nx)
+        end
+    end
   end
 
   def find_adjacent(board, player, {ny, nx}, :all) do
@@ -62,7 +82,7 @@ defmodule F do
   end
 
   def print_board(board, ny, nx) do
-    Enum.reduce(ny-1..0, "", fn y, acc_row ->
+    Enum.reduce(ny-1..0//-1, "", fn y, acc_row ->
       acc_row
         <> Enum.reduce(0..nx-1, "", fn x, acc_col ->
           piece = board[y][x]
